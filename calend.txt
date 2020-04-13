@@ -1,0 +1,172 @@
+;************************************************************
+; Programme: Vendredi.txt
+;
+; DESCRIPTION : Les années valides
+; sont de 2000 à 2050. 
+;
+; Auteurs: Jean-Michel Landry, Patrick Chalifour
+; Codes permanents : LANJ09049206, CHAP03089503
+; Courriel: landry.jean-michel.2@courrier.uqam.ca , dj991063@ens.uqam.ca
+; date: 20 avril 2020
+; cours: INF2171
+;*************************************************************
+
+;Affichage du message de presentation, message de saisi et saisi de l'annee
+;validation date valide
+
+
+CALL bonjour 
+
+
+debut: CALL question 
+
+
+CALL saisi
+
+CALL valideur 
+
+BR debut
+
+;
+
+; affiche le message de bienvenu et le fonctionnement du programme. 
+;
+
+bonjour: STRO bienvenu,d 
+
+
+STRO manuel,d 
+
+RET0
+
+
+;
+
+; affiche la demande de saisie a l'utilisateur. 
+;
+
+question:STRO demande,d 
+
+RET0 
+
+
+
+; Sous programme qui saisi une chaine de caractere 
+
+
+; entrez par l'usager et valide la saisi. 
+;
+
+saisi: LDX 0,i 
+
+
+LDA 0,i 
+
+
+boucle: CHARI date,x ; lecture d'un caractère de chaine 
+
+
+LDBYTEX date,x ; charge le caractère lu 
+
+
+LDA compte,d 
+
+
+ADDA 1,i ; position suivante
+
+CPA 6,i
+
+BRGT finchain 
+
+
+STA compte,d 
+
+
+CPX "\n",i ; dernier caractère ? 
+
+
+BREQ finchain ; oui, c'est terminé 
+
+
+CPX '0',i 
+
+
+BRLT inval 
+
+
+CPX '9',i 
+
+
+BRGT inval 
+
+
+BR boucle 
+
+
+inval: STRO entinval,d 
+
+BR boucle
+
+
+finchain: CPA 1,i ; est-ce que le caractère ENTREE est le premier caractère lu 
+
+
+BREQ fin
+ 
+
+
+
+LDA 0,i ; insérons le délimiteur de fin 
+
+
+STBYTEA date,x ; de ligne 
+
+retour: RET0 
+
+
+;
+
+;Sous-Proramme d'affichage de fin 
+;
+
+;affiche le message de fin et termine le programme 
+;
+
+fin: STRO final,d 
+
+
+;
+; Sous programme qui valide que la date entree est entre les bornes 1901 et 2050.
+;
+valideur: LDA 0,i
+LDX 0,i 
+;
+;
+;
+;
+;
+
+
+
+
+;
+;
+;
+
+
+STOP 
+
+
+bienvenu:.ASCII "Bienvenue a ce programme d'affichage d'un calendrier.\x00"
+manuel:.ASCII "\n\nCe programme affichera un calendrier pour l'annee et le mois"
+.ASCII "\ndesire. Il faut entrez le mois desire sous la forme AAAAMM sans quoi"
+.ASCII "\nle programme vous dira que c'est une entree invalide. De plus, seules"
+.ASCII "\nles années comprises inclusivement entre 1901 et 2050 sont valides."
+.ASCII "\nAucun espace ne peut apparaître avant, à l'intérieur ou après la date."
+.ASCII "Pour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
+demande: .ASCII "\n\nEntrez la date desiree: \x00"
+final: .ASCII "\n\nFin normal du programme\x00"
+entinval: .ASCII "\n\nEntree invalide\x00"
+compte: .BLOCK 2 ;#2d 
+date: .BLOCK 10
+         .END                  
