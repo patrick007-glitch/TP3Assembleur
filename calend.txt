@@ -2,7 +2,7 @@
 ; Programme: Vendredi.txt
 ;
 ; DESCRIPTION : Les années valides
-; sont de 2000 à 2050. 
+; sont de 2000 à 2050.
 ;
 ; Auteurs: Jean-Michel Landry, Patrick Chalifour
 ; Codes permanents : LANJ09049206, CHAP03089503
@@ -10,163 +10,176 @@
 ; date: 20 avril 2020
 ; cours: INF2171
 ;*************************************************************
-
-;Affichage du message de presentation, message de saisi et saisi de l'annee
-;validation date valide
-
-
-CALL bonjour 
-
-
-debut: CALL question 
-
-
-CALL saisi
-
-CALL valideur 
-
-BR debut
-
 ;
-
-; affiche le message de bienvenu et le fonctionnement du programme. 
+;Programme principal qui appel les sous programmes nécessaires
 ;
-
-bonjour: STRO bienvenu,d 
-
-
-STRO manuel,d 
-
-RET0
-
-
+         CALL    bonjour     
+debut:   CALL    question    
+         CALL    saisi       
+         BR      debut       
 ;
-
-; affiche la demande de saisie a l'utilisateur. 
+; affiche le message de bienvenu et le fonctionnement du programme.
 ;
-
-question:STRO demande,d 
-
-RET0 
-
-
-
-; Sous programme qui saisi une chaine de caractere 
-
-
-; entrez par l'usager et valide la saisi. 
+bonjour: STRO    bienvenu,d  
+         STRO    manuel,d    
+         RET0                
 ;
-
-saisi: LDX 0,i 
-
-
-LDA 0,i 
-
-
-boucle: CHARI date,x ; lecture d'un caractère de chaine 
-
-
-LDBYTEX date,x ; charge le caractère lu 
-
-
-LDA compte,d 
-
-
-ADDA 1,i ; position suivante
-
-CPA 6,i
-
-BRGT finchain 
-
-
-STA compte,d 
-
-
-CPX "\n",i ; dernier caractère ? 
-
-
-BREQ finchain ; oui, c'est terminé 
-
-
-CPX '0',i 
-
-
-BRLT inval 
-
-
-CPX '9',i 
-
-
-BRGT inval 
-
-
-BR boucle 
-
-
-inval: STRO entinval,d 
-
-BR boucle
-
-
-finchain: CPA 1,i ; est-ce que le caractère ENTREE est le premier caractère lu 
-
-
-BREQ fin
- 
-
-
-
-LDA 0,i ; insérons le délimiteur de fin 
-
-
-STBYTEA date,x ; de ligne 
-
-retour: RET0 
-
-
+; affiche la demande de saisie a l'utilisateur.
 ;
-
-;Sous-Proramme d'affichage de fin 
+question:STRO    demande,d   
+         RET0                
 ;
-
-;affiche le message de fin et termine le programme 
+; Sous programme qui saisi une chaine de caractere
+; entrez par l'usager et valide que les characteres saisi sont des nombres.
+; Il appelle ensuite un autre sous programme qui converti la saisi en annee
+; et en mois pour utilisation ulterieur dans le programme. Ainsi qu'un sous
+; programme qui valide que l'annee donner par l'utilisateur est valide.
 ;
+saisi:   LDX     0,i         
+         LDA     0,i         
+boucle:  CHARI  date,x      ; lecture d'un caractère de chaine
+         LDBYTEA date,x      ; charge le caractère lu
+         LDX     compte,d    
+         ADDX    1,i         ; position suivante
+         CPX     6,i         
+         BRGT    finchain    
+         STX     compte,d    
+         CPA     "\n",i      ; dernier caractère ?
+         BREQ    finchain    ; oui, c'est terminé
+         CPA     '0',i       
+         BRLT    inval       
+         CPA     '9',i       
+         BRGT    inval
+         SUBA    48,i
+         STBYTEA datedec,x      
+         BR      boucle      
+inval:   STRO    entinval,d  
+         BR      boucle      
+finchain:CPA     1,i         ; est-ce que le caractère ENTREE est le premier caractère lu
+         BREQ    fin         
+         LDA     0,i         ; insérons le délimiteur de fin
+         STBYTEA datedec,x      ; de ligne
+         CALL    converti    
+         CALL    valideur    
+retour:  RET0    
 
-fin: STRO final,d 
-
-
-;
+            
 ; Sous programme qui valide que la date entree est entre les bornes 1901 et 2050.
 ;
-valideur: LDA 0,i
-LDX 0,i 
+valideur:LDA     0,i         
+         LDX     0,i         
+         LDA     annee,d     
+         CPA     1901,i     
+         BRLT    inval       
+         CPA     2050,i     
+         BRGT    inval       
+         RET0                
+;
+; Sous programme qui multiplie le nombre en A par le nombre en X. Il retourne le
+; dans le registre A.
+;
+nombre:  .EQUATE 0           
+mult:    SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         CPA 0,i   
+         BREQ terminer     
+         STA     nombre,s    
+         LDA    0,i         
+addition:ADDA    nombre,s    
+         SUBX    1,i         
+         CPX     0,i         
+         BREQ    terminer    
+         BR      addition    
+terminer:ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0                
 ;
 ;
 ;
 ;
+;Sous programme qui prend la date au long dans le champ date et la separe
+;en mois et en annee
 ;
-
-
-
-
+converti: LDA     0,i         
+         LDX     1,i         
+         LDBYTEA datedec,x 
+         LDX 1000,i     
+         CALL mult 
+         STA annee,d    
+            
+         LDA     0,i         
+         LDX     2,i         
+         LDBYTEA datedec,x      
+         LDX 100,i
+         CAll mult       
+         ADDA    annee,d     
+         STA     annee,d  
+   
+         LDA     0,i         
+         LDX     3,i         
+         LDBYTEA datedec,x      
+         LDX     10,i        
+         CALL    mult        
+         ADDA    annee,d     
+         STA     annee,d
+     
+         LDA     0,i         
+         LDX     4,i         
+         LDBYTEA datedec,x      
+         ADDA    annee,d     
+         STA     annee,d    
+ 
+         LDA     0,i         
+         LDX     5,i         
+         LDBYTEA datedec,x      
+         LDX     10,i        
+         CALL    mult        
+         ADDA    mois,d      
+         STA     mois,d   
+   
+         LDA     0,i         
+         LDX     6,i 
+         LDBYTEA datedec,x  
+         ADDA    mois,d  
+         STA     mois,d   
+       
+         DECO    annee,d     
+         DECO    mois,d     
+         RET0                
+;divise: divise nombre donner en argument A par X
+;In A = dividende
+; X = diviseur
+;OUT A = reste
+; X = quotient
+;Variables locales
+diviser: .EQUATE 0           
+divise:  SUBSP   2,i         ;allouer espace variables locales ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         STX     diviser,s   
+         LDX     0,i         
+soustr:  ADDX    1,i         
+         SUBA    diviser,s   
+         BRGE    soustr      
+         SUBX    1,i         
+         ADDA    diviser,s   
+         ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0                
+;Sous-Proramme d'affichage de fin
 ;
+;affiche le message de fin et termine le programme
 ;
-;
-
-
-STOP 
-
-
-bienvenu:.ASCII "Bienvenue a ce programme d'affichage d'un calendrier.\x00"
-manuel:.ASCII "\n\nCe programme affichera un calendrier pour l'annee et le mois"
-.ASCII "\ndesire. Il faut entrez le mois desire sous la forme AAAAMM sans quoi"
-.ASCII "\nle programme vous dira que c'est une entree invalide. De plus, seules"
-.ASCII "\nles années comprises inclusivement entre 1901 et 2050 sont valides."
-.ASCII "\nAucun espace ne peut apparaître avant, à l'intérieur ou après la date."
-.ASCII "Pour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
-demande: .ASCII "\n\nEntrez la date desiree: \x00"
-final: .ASCII "\n\nFin normal du programme\x00"
-entinval: .ASCII "\n\nEntree invalide\x00"
-compte: .BLOCK 2 ;#2d 
-date: .BLOCK 10
+fin:     STRO    final,d     
+         STOP                
+bienvenu:.ASCII  "Bienvenue a ce programme d'affichage d'un calendrier.\x00"
+manuel:  .ASCII  "\n\nCe programme affichera un calendrier pour l'annee et le mois"
+         .ASCII  "\ndesire. Il faut entrez le mois desire sous la forme AAAAMM sans quoi"
+         .ASCII  "\nle programme vous dira que c'est une entree invalide. De plus, seules"
+         .ASCII  "\nles années comprises inclusivement entre 1901 et 2050 sont valides."
+         .ASCII  "\nAucun espace ne peut apparaître avant, à l'intérieur ou après la date."
+         .ASCII  "Pour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
+demande: .ASCII  "\n\nEntrez la date desiree: \x00"
+final:   .ASCII  "\n\nFin normal du programme\x00"
+entinval:.ASCII  "\n\nEntree invalide\n\x00"
+compte:  .BLOCK  2           ;#2d
+annee:   .BLOCK  2           ;#2d
+mois:    .BLOCK  2           ;#2d
+datedec: .BLOCK 6 
+date:    .BLOCK  10 
          .END                  
