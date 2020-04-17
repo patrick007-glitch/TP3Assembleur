@@ -34,40 +34,18 @@ question:STRO    demande,d
          RET0                
 
 ; 
-
-
 ; Reinitialise les valeurs de alphab et autres 
-
-
 ; variables a 0 
-
-
 reinit: LDA 0,i 
-
-
 LDX 0,i 
-
-
 STA compte,d 
 STA annee,d
 STA mois,d
-
-
 retalpha: STBYTEA date,x 
-
-
-
 ADDX 1,i 
-
-
 CPX 7,i 
-
-
 BREQ ret 
-
-
 BR retalpha 
-
 ret: RET0
 
 ;
