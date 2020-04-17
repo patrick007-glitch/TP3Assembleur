@@ -14,8 +14,12 @@
 ;Programme principal qui appel les sous programmes nécessaires
 ;
          CALL    bonjour     
-debut:   CALL    question    
-         CALL    saisi       
+debut:   CALL    question
+         CALL    reinit
+         CALL    saisi
+         CPA -1,i 
+         BREQ debut  
+         CALL premjour  
          BR      debut       
 ;
 ; affiche le message de bienvenu et le fonctionnement du programme.
@@ -28,6 +32,44 @@ bonjour: STRO    bienvenu,d
 ;
 question:STRO    demande,d   
          RET0                
+
+; 
+
+
+; Reinitialise les valeurs de alphab et autres 
+
+
+; variables a 0 
+
+
+reinit: LDA 0,i 
+
+
+LDX 0,i 
+
+
+STA compte,d 
+STA annee,d
+STA mois,d
+
+
+retalpha: STBYTEA date,x 
+
+
+
+ADDX 1,i 
+
+
+CPX 7,i 
+
+
+BREQ ret 
+
+
+BR retalpha 
+
+ret: RET0
+
 ;
 ; Sous programme qui saisi une chaine de caractere
 ; entrez par l'usager et valide que les characteres saisi sont des nombres.
@@ -37,32 +79,38 @@ question:STRO    demande,d
 ;
 saisi:   LDX     0,i         
          LDA     0,i         
-boucle:  CHARI  date,x      ; lecture d'un caractère de chaine
-         LDBYTEA date,x      ; charge le caractère lu
-         LDX     compte,d    
+lecture: CHARI  date,x      ; lecture d'un caractère de chaine
+         LDA 0,i         
+         LDBYTEA date,x      ; charge le caractère lu  
          ADDX    1,i         ; position suivante
-         CPX     6,i         
-         BRGT    finchain    
-         STX     compte,d    
-         CPA     "\n",i      ; dernier caractère ?
-         BREQ    finchain    ; oui, c'est terminé
+         CPA     '\n',i         
+         BRNE    lecture    
+
+         LDX     0,i         
+         LDA     0,i   
+analyse: LDBYTEA date,x
+         CPA '\n',i
+         BREQ finchain
+         ADDX 1,i
          CPA     '0',i       
          BRLT    inval       
          CPA     '9',i       
-         BRGT    inval
+         BRGT   inval
          SUBA    48,i
-         STBYTEA datedec,x      
-         BR      boucle      
-inval:   STRO    entinval,d  
-         BR      boucle      
-finchain:CPA     1,i         ; est-ce que le caractère ENTREE est le premier caractère lu
-         BREQ    fin         
-         LDA     0,i         ; insérons le délimiteur de fin
-         STBYTEA datedec,x      ; de ligne
+         STBYTEA datedec,x 
+         CPX 6,i
+         BREQ finchain     
+         BR      analyse            
+finchain:CPX     0,i         ; est-ce que le caractère ENTREE est le premier caractère lu
+         BREQ    fin              
          CALL    converti    
-         CALL    valideur    
-retour:  RET0    
+         CALL    valideur
+retour:  RET0  
 
+ 
+inval:   STRO    entinval,d 
+         LDA -1,i
+         BR retour 
             
 ; Sous programme qui valide que la date entree est entre les bornes 1901 et 2050.
 ;
@@ -72,28 +120,12 @@ valideur:LDA     0,i
          CPA     1901,i     
          BRLT    inval       
          CPA     2050,i     
-         BRGT    inval       
-         RET0                
-;
-; Sous programme qui multiplie le nombre en A par le nombre en X. Il retourne le
-; dans le registre A.
-;
-nombre:  .EQUATE 0           
-mult:    SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
-         CPA 0,i   
-         BREQ terminer     
-         STA     nombre,s    
-         LDA    0,i         
-addition:ADDA    nombre,s    
-         SUBX    1,i         
-         CPX     0,i         
-         BREQ    terminer    
-         BR      addition    
-terminer:ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
-         RET0                
-;
-;
-;
+         BRGT    inval 
+         LDA      mois,d
+         CPA     12,i
+         BRGT    inval      
+         RET0                             
+ 
 ;
 ;Sous programme qui prend la date au long dans le champ date et la separe
 ;en mois et en annee
@@ -143,7 +175,83 @@ converti: LDA     0,i
        
          DECO    annee,d     
          DECO    mois,d     
-         RET0                
+         RET0             
+
+;
+;Sous programme pour calculer la premiere journee du mois et retourne l'indice en A
+; Il trouve d'abord le nombre de jour ecouler depuis 1900 puis apelle un programme de
+; division speciale pour trouver le reste. Celui-ci retourne l'indice du jour(dimanche = 0).
+; Puis ce programme retourne l'indice du jour.
+;
+premjour: LDA 0,i
+LDX 0,i
+;aaxx <- aaaa - 1900 
+;aaxx * 365 mais 
+;aaxx*365 => aaxx*(364+1) => aaxx*(1) => aaxx , car 364 est un multiple de 7
+LDA annee,d
+SUBA 1900,i
+STA aaxx,d
+ADDA compte,d
+STA compte,d
+;+ entier((aaxx-1) / 4)
+LDA aaxx,d
+SUBA 1,i
+LDX 4,i
+CALL divise
+ADDX compte,d
+STA compte,d
+;+ entier((((mm - 1) * 57) + 50) / 100)
+LDA mois,d
+CPA 2,i
+BRGT retranch
+retranch: ldx aaxx,d      ; analysons le nombre d'année depuis 1900
+         andx 3,i         ; divisible par 4 ?
+         breq bissex      ; oui, on enlève 1
+nonbisse:suba 1,i         ; -1 pour l'année non bissextile 
+bissex:  suba 1,i         ; -2 pour l'année non bissextile ou -1 pour bissextile
+SUBA 1,i
+LDX 57,i
+CALL mult
+ADDA 50,i 
+LDX 100,i
+CALL divise
+ADDX compte,d
+STA compte,d
+;+ (mm - 1) * 30
+LDA mois,d
+SUBA 1,i
+LDX 30,i
+CALL mult
+ADDA compte,d
+STA compte,d
+;+ jj le premier jour donc 1
+LDA 1,i
+ADDA compte,d 
+; divison par 7 pour avoir l'indice du jour (dimanche = 0)
+LDX 7,i
+CALL divise
+RET0
+
+
+;
+; Sous programme qui multiplie le nombre en A par le nombre en X. Il retourne le resultat
+; dans le registre A.
+;
+nombre:  .EQUATE 0           
+mult:    SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         CPA 0,i   
+         BREQ terminer     
+         STA     nombre,s    
+         LDA    0,i         
+addition:ADDA    nombre,s    
+         SUBX    1,i         
+         CPX     0,i         
+         BREQ    terminer    
+         BR      addition    
+terminer:ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0   
+
+   
 ;divise: divise nombre donner en argument A par X
 ;In A = dividende
 ; X = diviseur
@@ -180,6 +288,7 @@ entinval:.ASCII  "\n\nEntree invalide\n\x00"
 compte:  .BLOCK  2           ;#2d
 annee:   .BLOCK  2           ;#2d
 mois:    .BLOCK  2           ;#2d
-datedec: .BLOCK 6 
-date:    .BLOCK  10 
+aaxx:     .BLOCK 2   
+datedec: .BLOCK  7 
+date:    .BLOCK  7 
          .END                  
