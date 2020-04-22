@@ -19,8 +19,8 @@ debut:   CALL    question
          CALL    saisi
          CPA -1,i 
          BREQ debut  
-         ;CALL premjour 
-         ;CALL premjeu 
+         CALL premjour 
+         CALL premjeu 
          ;CALL jourpaie
          CALL STRBUILD
          BR      debut       
@@ -280,7 +280,32 @@ ADDX 1,i
 espace:  STA     SORTIE,x    
          ADDX    2,i         
          CPX     50,i        
-         BRLT    espace     
+         BRLT    espace 
+         LDA mois,d
+         CPA 1,i
+         BREQ JANVIER
+         CPA 2,i 
+         BREQ FEVRIER
+         CPA 3,i
+         BREQ MARS
+         CPA 4,i
+         BREQ AVRIL 
+         CPA 5,i
+         BREQ MAI
+         CPA 6,i
+         BREQ JUIN
+         CPA 7,i
+         BREQ JUILLET
+         CPA 8,i
+         BREQ AOUT
+         CPA 9,i
+         BREQ SEPTEMBR
+         CPA 10,i
+         BREQ OCTOBRE
+         CPA 11,i
+         BREQ NOVEMBRE
+         CPA 12,i
+         BREQ DECEMBRE    
 ;
 ;        nous désirons copier le mot SUCCES dans la ligne de sortie
 ;        à partir du 6ième caractère
@@ -291,14 +316,41 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
-         LDA     7,i         ;7e caractère
+         LDA     10,i         ;10 caractère
          STA     -8,s        
          ADDA    6,i         ; longueur de 7 caractères
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
          CALL RECOPIE
-       
-       
+
+         LDA    date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     18,i         ;18e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE
+         BR AFFICHE
+
+
+FEVRIER: LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     8,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 10ième caractère
+         STA     -8,s        
+         ADDA    6,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
          LDA     date,i     ; chaine d'origine
          STA     -2,s        
          LDA     0,i        ; premier caractère
@@ -310,10 +362,279 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          ADDA    3,i         ; longueur de 7 caractères
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
-         CALL RECOPIE
+         CALL RECOPIE  
+         BR AFFICHE
 
-         LDA "\n\n",i 
-         LDX 22,i
+
+MARS:    LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     16,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 10ième caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 4 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     15,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE  
+         BR AFFICHE
+        
+AVRIL:   LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     21,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    4,i         ; longueur de 5 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     16,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE  
+           BR AFFICHE
+     
+MAI:     LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     27,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    2,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     14,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE   
+           BR AFFICHE
+
+JUIN:    LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     31,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     15,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE    
+         BR AFFICHE
+  
+JUILLET: LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     36,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    6,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     18,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE     
+         BR AFFICHE
+    
+AOUT:    LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     44,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     15,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE      
+           BR AFFICHE
+  
+SEPTEMBR:LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     49,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    8,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     20,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE     
+           BR AFFICHE
+
+OCTOBRE: LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     59,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    6,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+         
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     18,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE      
+           BR AFFICHE
+     
+NOVEMBRE:LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     67,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    7,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     19,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE     
+         BR AFFICHE
+       
+DECEMBRE:LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     76,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    7,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     19,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 3 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE      
+
+
+AFFICHE: LDA "\n\n",i 
+         LDX 24,i 
          STA SORTIE,x
        
          LDA     TEXTE,i     ; chaine d'origine
@@ -322,7 +643,7 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
-         LDA     28,i         ;10e caractère
+         LDA     32,i         ;10e caractère
          STA     -8,s        
          ADDA    19,i         ; longueur de 7 caractères
          STA     -10,s       
@@ -333,24 +654,7 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          LDA "\n\n",i 
          LDX 22,i
          STA SORTIE,x
-         RET0
-
-
-
-FEVRIER: LDA     TEXTE,i     ; chaine d'origine
-         STA     -2,s        
-         LDA     84,i         ; 10ième caractère
-         STA     -4,s        
-         LDA     SORTIE,i    ; chaine de destination
-         STA     -6,s        
-         LDA     10,i         ; 12ième caractère
-         STA     -8,s        
-         ADDA    7,i         ; longueur de 7 caractères
-         STA     -10,s       
-         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
-         CALL    RECOPIE     ; #retour
-         STRO    SORTIE,d    
-         STOP                
+         RET0           
 ;
 ;        sous-programme RECOPIE
 ;
