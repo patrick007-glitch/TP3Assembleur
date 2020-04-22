@@ -19,7 +19,10 @@ debut:   CALL    question
          CALL    saisi
          CPA -1,i 
          BREQ debut  
-         CALL premjour  
+         ;CALL premjour 
+         ;CALL premjeu 
+         ;CALL jourpaie
+         CALL STRBUILD
          BR      debut       
 ;
 ; affiche le message de bienvenu et le fonctionnement du programme.
@@ -83,12 +86,12 @@ finchain:CPX     0,i         ; est-ce que le caractère ENTREE est le premier car
          BREQ    fin              
          CALL    converti    
          CALL    valideur
-retour:  RET0  
+retoure:  RET0  
 
  
 inval:   STRO    entinval,d 
          LDA -1,i
-         BR retour 
+         BR retoure 
             
 ; Sous programme qui valide que la date entree est entre les bornes 1901 et 2050.
 ;
@@ -150,9 +153,7 @@ converti: LDA     0,i
          LDBYTEA datedec,x  
          ADDA    mois,d  
          STA     mois,d   
-       
-         DECO    annee,d     
-         DECO    mois,d     
+            
          RET0             
 
 ;
@@ -205,10 +206,192 @@ STA compte,d
 ;+ jj le premier jour donc 1
 LDA 1,i
 ADDA compte,d 
+STA jours,d ; le nombre de jours écoulés
 ; divison par 7 pour avoir l'indice du jour (dimanche = 0)
 LDX 7,i
 CALL divise
+STA jourun,d ; indice du premier jour 
 RET0
+
+;
+; Sous programme qui trouve la date du premier jeudi du mois.
+;
+premjeu: LDX 0,i 
+LDA jourun,d 
+boucl: CPA 4,i
+BREQ jeudi
+CPA 11,i
+BREQ jeudi
+ADDA 1,i
+ADDX 1,i
+br boucl 
+
+jeudi: STA jeuprem,d 
+ADDX jours,d
+STX jours,d
+RET0
+
+
+;
+; Sous programme qui trouve si les jeudis du mois qui sont un jour de paie. Il range les 
+; dates dans un tableau nommés jourspai.
+;
+jourpaie: LDA jours,d 
+LDX 14,i 
+CALL divise
+CPA 4,i
+BREQ oui
+LDA jeuprem,d 
+
+oui: LDX 0,i
+LDA jeuprem,d
+STA jourspai,x
+ADDX 1,i
+ADDA 14,i
+CPA 31,i 
+BRGE term
+CPA 28,i
+BRGT verimois
+BR oui
+
+verimois: LDA mois,d
+CPA 2,i
+BREQ fevrier 
+BR oui 
+
+
+fevrier: LDA ' ',i
+STA jourspai,x
+BR term 
+
+
+term: RET0
+
+;
+;       Sous programme qui initialise un texte avec des espaces vides
+;       Puis selon le mois il cherche dans un texte pour afficher le bon
+;       en characteres.
+;
+STRBUILD:LDX     0,i   
+LDBYTEA "\n",i
+STBYTEA SORTIE,x 
+ADDX 1,i     
+         LDA     "  ",i      
+espace:  STA     SORTIE,x    
+         ADDX    2,i         
+         CPX     50,i        
+         BRLT    espace     
+;
+;        nous désirons copier le mot SUCCES dans la ligne de sortie
+;        à partir du 6ième caractère
+;
+JANVIER: LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     7,i         ;7e caractère
+         STA     -8,s        
+         ADDA    6,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL RECOPIE
+       
+       
+         LDA     date,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     18,i         ;10e caractère
+         STA     -8,s        
+         ADDA    3,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE
+
+         LDA "\n\n",i 
+         LDX 22,i
+         STA SORTIE,x
+       
+         LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     85,i        ; premier caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     28,i         ;10e caractère
+         STA     -8,s        
+         ADDA    19,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL RECOPIE
+         STRO SORTIE,d
+
+         LDA "\n\n",i 
+         LDX 22,i
+         STA SORTIE,x
+         RET0
+
+
+
+FEVRIER: LDA     TEXTE,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     84,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     10,i         ; 12ième caractère
+         STA     -8,s        
+         ADDA    7,i         ; longueur de 7 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite 
+         CALL    RECOPIE     ; #retour
+         STRO    SORTIE,d    
+         STOP                
+;
+;        sous-programme RECOPIE
+;
+;paramètres:     adresse de la chaine d'origine
+;                position du caractère dans la chaine d'origine
+;                adresse de la chaine de destination
+;                position du caractère dans la chaine de destination
+;                position limite dans la chaine de destination                
+;
+sauveX:  .EQUATE 0           ; #2h
+sauveA:  .EQUATE 2           ; #2h
+retour:  .EQUATE 4           ; #2h 
+limite:  .EQUATE 6           ; #2d
+positioD:.EQUATE 8           ; position destination #2d
+chaineD: .EQUATE 10          ; chaine destination #2h
+positioO:.EQUATE 12          ; position origine #2d
+chaineO: .EQUATE 14          ; chaine origine #2h
+;
+RECOPIE: SUBSP   4,i         ; #sauveX #sauveA
+         STX     sauveX,s    
+         STA     sauveA,s    
+;
+         LDA     0,i         
+boucle:  LDX     positioO,s  ; position de départ
+         LDA     chaineO,sxf ; caractère à copier
+         ADDX    1,i         ; caractère suivant
+         STX     positioO,s  
+         LDX     positioD,s  ; position d'arrivée
+         STA      chaineD,sxf ; caractère qui est copié
+         ADDX    1,i         ; caractère suivant
+         STX     positioD,s  
+         CPX     limite,s     ; dernier caractère copié ?
+         BRLT    boucle      ; non, on continue
+;
+         LDA     retour,s    
+         STA     chaineO,s   
+         LDA     sauveA,s    
+         LDX     sauveX,s    
+         ADDSP   14,i        ; #sauveX #sauveA #retour #limite #positioD #chaineD #positioO 
+         RET0                          
+
 
 
 ;
@@ -259,14 +442,23 @@ manuel:  .ASCII  "\n\nCe programme affichera un calendrier pour l'annee et le mo
          .ASCII  "\nle programme vous dira que c'est une entree invalide. De plus, seules"
          .ASCII  "\nles années comprises inclusivement entre 1901 et 2050 sont valides."
          .ASCII  "\nAucun espace ne peut apparaître avant, à l'intérieur ou après la date."
-         .ASCII  "Pour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
+         .ASCII  "\nPour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
 demande: .ASCII  "\n\nEntrez la date desiree: \x00"
 final:   .ASCII  "\n\nFin normal du programme\x00"
 entinval:.ASCII  "\n\nEntree invalide\n\x00"
 compte:  .BLOCK  2           ;#2d
 annee:   .BLOCK  2           ;#2d
 mois:    .BLOCK  2           ;#2d
-aaxx:     .BLOCK 2   
+jours:   .BLOCK 2
+aaxx:     .BLOCK 2 
+jourun: .BLOCK 2 
+jeuprem: .BLOCK 2
+jourspai: .BLOCK 3 
 datedec: .BLOCK  7 
 date:    .BLOCK  7 
-         .END                  
+origine: .WORD   9           ; position dans la chaine d'entrée
+destin:  .WORD   5           ; position dans la chaine de sortie
+TEXTE:   .ASCII  "JANVIER|FEVRIER|MARS|AVRIL|MAI|JUIN|JUILLET|AOUT|SEPTEMBRE|OCTOBRE|NOVEMBRE|DECEMBRE|D  L  M  M  J  V  S\n|"
+SORTIE:  .BLOCK  50   
+         .BYTE   0           
+         .END                      
