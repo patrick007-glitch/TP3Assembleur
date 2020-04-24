@@ -14,298 +14,264 @@
 ;Programme principal qui appel les sous programmes nécessaires
 ;
          CALL    bonjour     
-debut:   CALL    question
-         CALL    reinit
-         CALL    saisi
-         CPA -1,i 
-         BREQ debut  
-         CALL premjour 
-         CALL premjeu 
-         ;CALL jourpaie
-         CALL STRBUILD
+debut:   CALL    question    
+         CALL    reinit      
+         CALL    saisi       
+         CPA     -1,i        
+         BREQ    debut       
+         CALL    premjour    
+         CALL    premjeu     
+;CALL jourpaie
+         CALL    STRBUILD    
          BR      debut       
-;
-; affiche le message de bienvenu et le fonctionnement du programme.
+; Sous-Programme: bonjour
+; description: affiche le message de bienvenu et le fonctionnement du programme.
 ;
 bonjour: STRO    bienvenu,d  
          STRO    manuel,d    
          RET0                
-;
-; affiche la demande de saisie a l'utilisateur.
+; Sous-Programme: question
+; description: affiche la demande de saisie a l'utilisateur.
 ;
 question:STRO    demande,d   
          RET0                
-
-; 
-; Reinitialise les valeurs de alphab et autres 
-; variables a 0 
-reinit: LDA 0,i 
-LDX 0,i 
-STA compte,d 
-STA annee,d
-STA mois,d
-retalpha: STBYTEA date,x 
-ADDX 1,i 
-CPX 7,i 
-BREQ ret 
-BR retalpha 
-ret: RET0
-
-;
-; Sous programme qui saisi une chaine de caractere
+; Sous-Programme: reinit
+; description: Reinitialise les valeurs de alphab , compte, annee et mois
+; variables a 0
+reinit:  LDA     0,i         
+         LDX     0,i         
+         STA     compte,d    
+         STA     annee,d     
+         STA     mois,d      
+retalpha:STBYTEA date,x      
+         ADDX    1,i         
+         CPX     7,i         
+         BREQ    ret         
+         BR      retalpha    
+ret:     RET0                
+; Sous programme: saisi
+; description :  saisi une chaine de caractere
 ; entrez par l'usager et valide que les characteres saisi sont des nombres.
-; Il appelle ensuite un autre sous programme qui converti la saisi en annee
-; et en mois pour utilisation ulterieur dans le programme. Ainsi qu'un sous
-; programme qui valide que l'annee donner par l'utilisateur est valide.
+; et valide que ces entrees sont valide
 ;
 saisi:   LDX     0,i         
          LDA     0,i         
-lecture: CHARI  date,x      ; lecture d'un caractère de chaine
-         LDA 0,i         
-         LDBYTEA date,x      ; charge le caractère lu  
+lecture: CHARI   date,x      ; lecture d'un caractère de chaine
+         LDA     0,i         
+         LDBYTEA date,x      ; charge le caractère lu
          ADDX    1,i         ; position suivante
-         CPA     '\n',i         
-         BRNE    lecture    
-
+         CPA     '\n',i      
+         BRNE    lecture     
          LDX     0,i         
-         LDA     0,i   
-analyse: LDBYTEA date,x
-         CPA '\n',i
-         BREQ finchain
-         ADDX 1,i
+         LDA     0,i         
+analyse: LDBYTEA date,x      
+         CPA     '\n',i      
+         BREQ    finchain    
+         ADDX    1,i         
          CPA     '0',i       
          BRLT    inval       
          CPA     '9',i       
-         BRGT   inval
-         SUBA    48,i
-         STBYTEA datedec,x 
-         CPX 6,i
-         BREQ finchain     
-         BR      analyse            
+         BRGT    inval       
+         SUBA    48,i        
+         STBYTEA datedec,x   
+         CPX     6,i         
+         BREQ    finchain    
+         BR      analyse     
 finchain:CPX     0,i         ; est-ce que le caractère ENTREE est le premier caractère lu
-         BREQ    fin              
+         BREQ    fini        
          CALL    converti    
-         CALL    valideur
-retoure:  RET0  
-
- 
-inval:   STRO    entinval,d 
-         LDA -1,i
-         BR retoure 
-            
-; Sous programme qui valide que la date entree est entre les bornes 1901 et 2050.
+         CALL    valideur    
+retoure: RET0                
+inval:   STRO    entinval,d  
+         LDA     -1,i        
+         BR      retoure     
+;
+; Sous programme : converti
+; description :  prend la date au long dans le champ date et la separe
+; en mois et en annee
+;
+converti:LDA     0,i         
+         LDX     1,i         
+         LDBYTEA datedec,x   
+         LDX     1000,i      
+         CALL    mult        
+         STA     annee,d     
+         LDA     0,i         
+         LDX     2,i         
+         LDBYTEA datedec,x   
+         LDX     100,i       
+         CALL    mult        
+         ADDA    annee,d     
+         STA     annee,d     
+         LDA     0,i         
+         LDX     3,i         
+         LDBYTEA datedec,x   
+         LDX     10,i        
+         CALL    mult        
+         ADDA    annee,d     
+         STA     annee,d     
+         LDA     0,i         
+         LDX     4,i         
+         LDBYTEA datedec,x   
+         ADDA    annee,d     
+         STA     annee,d     
+         LDA     0,i         
+         LDX     5,i         
+         LDBYTEA datedec,x   
+         LDX     10,i        
+         CALL    mult        
+         ADDA    mois,d      
+         STA     mois,d      
+         LDA     0,i         
+         LDX     6,i         
+         LDBYTEA datedec,x   
+         ADDA    mois,d      
+         STA     mois,d      
+         RET0                
+;
+; Sous programme : valideur
+; description :  valide que la date entree est entre les bornes 1901 et 2050.
 ;
 valideur:LDA     0,i         
          LDX     0,i         
          LDA     annee,d     
-         CPA     1901,i     
+         CPA     1901,i      
          BRLT    inval       
-         CPA     2050,i     
-         BRGT    inval 
-         LDA      mois,d
-         CPA     12,i
-         BRGT    inval      
-         RET0                             
- 
-;
-;Sous programme qui prend la date au long dans le champ date et la separe
-;en mois et en annee
-;
-converti: LDA     0,i         
-         LDX     1,i         
-         LDBYTEA datedec,x 
-         LDX 1000,i     
-         CALL mult 
-         STA annee,d    
-            
-         LDA     0,i         
-         LDX     2,i         
-         LDBYTEA datedec,x      
-         LDX 100,i
-         CAll mult       
-         ADDA    annee,d     
-         STA     annee,d  
-   
-         LDA     0,i         
-         LDX     3,i         
-         LDBYTEA datedec,x      
-         LDX     10,i        
-         CALL    mult        
-         ADDA    annee,d     
-         STA     annee,d
-     
-         LDA     0,i         
-         LDX     4,i         
-         LDBYTEA datedec,x      
-         ADDA    annee,d     
-         STA     annee,d    
- 
-         LDA     0,i         
-         LDX     5,i         
-         LDBYTEA datedec,x      
-         LDX     10,i        
-         CALL    mult        
-         ADDA    mois,d      
-         STA     mois,d   
-   
-         LDA     0,i         
-         LDX     6,i 
-         LDBYTEA datedec,x  
-         ADDA    mois,d  
-         STA     mois,d   
-            
-         RET0             
-
-;
-;Sous programme pour calculer la premiere journee du mois et retourne l'indice en A
+         CPA     2050,i      
+         BRGT    inval       
+         LDA     mois,d      
+         CPA     12,i        
+         BRGT    inval       
+         RET0                
+;Sous-programme: premjour
+;description:  calcul la premiere journee du mois et retourne l'indice en A
 ; Il trouve d'abord le nombre de jour ecouler depuis 1900 puis apelle un programme de
 ; division speciale pour trouver le reste. Celui-ci retourne l'indice du jour(dimanche = 0).
 ; Puis ce programme retourne l'indice du jour.
 ;
-premjour: LDA 0,i
-LDX 0,i
-;aaxx <- aaaa - 1900 
-;aaxx * 365 mais 
+; out = indice du premier jour
+premjour:LDA     0,i         
+         LDX     0,i         
+;aaxx <- aaaa - 1900
+;aaxx * 365 mais
 ;aaxx*365 => aaxx*(364+1) => aaxx*(1) => aaxx , car 364 est un multiple de 7
-LDA annee,d
-SUBA 1900,i
-STA aaxx,d
-ADDA compte,d
-STA compte,d
+         LDA     annee,d     
+         SUBA    1900,i      
+         STA     aaxx,d      
+         ADDA    compte,d    
+         STA     compte,d    
 ;+ entier((aaxx-1) / 4)
-LDA aaxx,d
-SUBA 1,i
-LDX 4,i
-CALL divise
-ADDX compte,d
-STA compte,d
+         LDA     aaxx,d      
+         SUBA    1,i         
+         LDX     4,i         
+         CALL    divise      
+         ADDX    compte,d    
+         STA     compte,d    
 ;+ entier((((mm - 1) * 57) + 50) / 100)
-LDA mois,d
-CPA 2,i
-BRGT retranch
-retranch: ldx aaxx,d      ; analysons le nombre d'année depuis 1900
-         andx 3,i         ; divisible par 4 ?
-         breq bissex      ; oui, on enlève 1
-nonbisse:suba 1,i         ; -1 pour l'année non bissextile 
-bissex:  suba 1,i         ; -2 pour l'année non bissextile ou -1 pour bissextile
-SUBA 1,i
-LDX 57,i
-CALL mult
-ADDA 50,i 
-LDX 100,i
-CALL divise
-ADDX compte,d
-STA compte,d
+         LDA     mois,d      
+         CPA     2,i         
+         BRGT    retranch    
+retranch:LDX     aaxx,d      ; analysons le nombre d'année depuis 1900
+         ANDX    3,i         ; divisible par 4 ?
+         BREQ    bissex      ; oui, on enlève 1
+nonbisse:SUBA    1,i         ; -1 pour l'année non bissextile
+bissex:  SUBA    1,i         ; -2 pour l'année non bissextile ou -1 pour bissextile
+         SUBA    1,i         
+         LDX     57,i        
+         CALL    mult        
+         ADDA    50,i        
+         LDX     100,i       
+         CALL    divise      
+         ADDX    compte,d    
+         STA     compte,d    
 ;+ (mm - 1) * 30
-LDA mois,d
-SUBA 1,i
-LDX 30,i
-CALL mult
-ADDA compte,d
-STA compte,d
+         LDA     mois,d      
+         SUBA    1,i         
+         LDX     30,i        
+         CALL    mult        
+         ADDA    compte,d    
+         STA     compte,d    
 ;+ jj le premier jour donc 1
-LDA 1,i
-ADDA compte,d 
-STA jours,d ; le nombre de jours écoulés
+         LDA     1,i         
+         ADDA    compte,d    
+         STA     jours,d     ; le nombre de jours écoulés
 ; divison par 7 pour avoir l'indice du jour (dimanche = 0)
-LDX 7,i
-CALL divise
-STA jourun,d ; indice du premier jour 
-RET0
-
+         LDX     7,i         
+         CALL    divise      
+         STA     jourun,d    ; indice du premier jour
+         RET0                
 ;
-; Sous programme qui trouve la date du premier jeudi du mois.
+; Sous programme: premjeu
+; description: trouve la date du premier jeudi du mois.
 ;
-premjeu: LDX 0,i 
-LDA jourun,d 
-boucl: CPA 4,i
-BREQ jeudi
-CPA 11,i
-BREQ jeudi
-ADDA 1,i
-ADDX 1,i
-br boucl 
-
-jeudi: STA jeuprem,d 
-ADDX jours,d
-STX jours,d
-RET0
-
-
+premjeu: LDX     0,i         
+         LDA     jourun,d    
+boucl:   CPA     4,i         
+         BREQ    jeudi       
+         CPA     11,i        
+         BREQ    jeudi       
+         ADDA    1,i         
+         ADDX    1,i         
+         BR      boucl       
+jeudi:   STA     jeuprem,d   
+         RET0                
 ;
-; Sous programme qui trouve si les jeudis du mois qui sont un jour de paie. Il range les 
-; dates dans un tableau nommés jourspai.
+; Sous-programme: jourpaie
+; description:  trouve  si le premier jour de paie est le premier ou le
+; deuxieme jeudi du mois
 ;
-jourpaie: LDA jours,d 
-LDX 14,i 
-CALL divise
-CPA 4,i
-BREQ oui
-LDA jeuprem,d 
-
-oui: LDX 0,i
-LDA jeuprem,d
-STA jourspai,x
-ADDX 1,i
-ADDA 14,i
-CPA 31,i 
-BRGE term
-CPA 28,i
-BRGT verimois
-BR oui
-
-verimois: LDA mois,d
-CPA 2,i
-BREQ fevrier 
-BR oui 
-
-
-fevrier: LDA ' ',i
-STA jourspai,x
-BR term 
-
-
-term: RET0
-
-;
-;       Sous programme qui initialise un texte avec des espaces vides
+jourpaie:LDX     14,i        
+         CALL    divise      
+         CPA     4,i         
+         BREQ    premJeu     
+         BR      deuxJeu     
+premJeu: LDX     0,i         
+         LDA     jeuprem,d   
+         STA     jourspai,d  
+         BR      fin         
+deuxJeu: LDA     jeuprem,d   
+         ADDA    7,i         
+         STA     jourpaie,d  
+fin:     RET0                
+;Sous programme: STRBUILD
+; description : initialise un texte avec des espaces vides
 ;       Puis selon le mois il cherche dans un texte pour afficher le bon
 ;       en characteres.
 ;
-STRBUILD:LDX     0,i   
-LDBYTEA "\n",i
-STBYTEA SORTIE,x 
-ADDX 1,i     
+STRBUILD:LDX     0,i         
+         LDBYTEA "\n",i      
+         STBYTEA SORTIE,x    
+         ADDX    1,i         
          LDA     "  ",i      
 espace:  STA     SORTIE,x    
          ADDX    2,i         
          CPX     50,i        
-         BRLT    espace 
-         LDA mois,d
-         CPA 1,i
-         BREQ JANVIER
-         CPA 2,i 
-         BREQ FEVRIER
-         CPA 3,i
-         BREQ MARS
-         CPA 4,i
-         BREQ AVRIL 
-         CPA 5,i
-         BREQ MAI
-         CPA 6,i
-         BREQ JUIN
-         CPA 7,i
-         BREQ JUILLET
-         CPA 8,i
-         BREQ AOUT
-         CPA 9,i
-         BREQ SEPTEMBR
-         CPA 10,i
-         BREQ OCTOBRE
-         CPA 11,i
-         BREQ NOVEMBRE
-         CPA 12,i
-         BREQ DECEMBRE    
+         BRLT    espace      
+         LDA     mois,d      
+         CPA     1,i         
+         BREQ    JANVIER     
+         CPA     2,i         
+         BREQ    FEVRIER     
+         CPA     3,i         
+         BREQ    MARS        
+         CPA     4,i         
+         BREQ    AVRIL       
+         CPA     5,i         
+         BREQ    MAI         
+         CPA     6,i         
+         BREQ    JUIN        
+         CPA     7,i         
+         BREQ    JUILLET     
+         CPA     8,i         
+         BREQ    AOUT        
+         CPA     9,i         
+         BREQ    SEPTEMBR    
+         CPA     10,i        
+         BREQ    OCTOBRE     
+         CPA     11,i        
+         BREQ    NOVEMBRE    
+         CPA     12,i        
+         BREQ    DECEMBRE    
 ;
 ;        nous désirons copier le mot SUCCES dans la ligne de sortie
 ;        à partir du 6ième caractère
@@ -650,23 +616,72 @@ AFFICHE: LDA "\n\n",i
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL RECOPIE
          STRO SORTIE,d
+         LDA     "\n\n",i 
+         LDX     22,i
+         STA     SORTIE,x
 
-         LDA "\n\n",i 
-         LDX 22,i
-         STA SORTIE,x
-         RET0           
 ;
-;        sous-programme RECOPIE
+; Sous-programme: affJours
+; description: programme qui affiche les jours  du calendrier
+; en fonction du mois et de l'annee
 ;
-;paramètres:     adresse de la chaine d'origine
+;
+
+jmois:   .EQUATE 0 
+jsem:    .EQUATE 2
+jAff:    .EQUATE 4
+
+affJours:SUBSP   6,i
+         LDA     1,i
+         STA     jAff,s     
+         LDA     mois,d
+         CALL    lgtmois
+         LDA     0,i         
+         STX     jmois,s
+         STA     jsem,s
+         
+        
+blanc:   CPA     jourun,d        
+         BREQ    debut
+         LDA     "   ",i 
+         LDX     22,i
+         STA     SORTIE,x
+         LDA     jsem,s
+         ADDA    1,i
+         STA     jsem
+         BR      blanc
+debut:   LDA     jAff,s
+         LDX     22,i
+         STA     SORTIE,x
+         ADDA    1,i
+         CPA     jmois,s
+         BREQ    fin
+         STA     jAff,s
+         LDX     jsem,s
+         CPX     6,i
+         BREQ    fds
+         ADDX    1,i
+         STX     jsem,s
+         BR      debut
+fds      LDX     0,i
+         STX     jsem,s
+         LDA     "\n",i 
+         LDX     22,i
+         STA     SORTIE,x
+         BR      debut         
+fin      RET0                    
+;
+;  sous-programme: RECOPIE
+;  description : recopie les
+;  paramètres:     adresse de la chaine d'origine
 ;                position du caractère dans la chaine d'origine
 ;                adresse de la chaine de destination
 ;                position du caractère dans la chaine de destination
-;                position limite dans la chaine de destination                
+;                position limite dans la chaine de destination
 ;
 sauveX:  .EQUATE 0           ; #2h
 sauveA:  .EQUATE 2           ; #2h
-retour:  .EQUATE 4           ; #2h 
+retour:  .EQUATE 4           ; #2h
 limite:  .EQUATE 6           ; #2d
 positioD:.EQUATE 8           ; position destination #2d
 chaineD: .EQUATE 10          ; chaine destination #2h
@@ -683,46 +698,85 @@ boucle:  LDX     positioO,s  ; position de départ
          ADDX    1,i         ; caractère suivant
          STX     positioO,s  
          LDX     positioD,s  ; position d'arrivée
-         STA      chaineD,sxf ; caractère qui est copié
+         STA     chaineD,sxf ; caractère qui est copié
          ADDX    1,i         ; caractère suivant
          STX     positioD,s  
-         CPX     limite,s     ; dernier caractère copié ?
+         CPX     limite,s    ; dernier caractère copié ?
          BRLT    boucle      ; non, on continue
 ;
          LDA     retour,s    
          STA     chaineO,s   
          LDA     sauveA,s    
          LDX     sauveX,s    
-         ADDSP   14,i        ; #sauveX #sauveA #retour #limite #positioD #chaineD #positioO 
-         RET0                          
-
-
-
+         ADDSP   14,i        ; #sauveX #sauveA #retour #limite #positioD #chaineD #positioO
+         RET0  
 ;
-; Sous programme qui multiplie le nombre en A par le nombre en X. Il retourne le resultat
+; Sous-programme: lgtMois
+; description: programme qui determine le nombre de jours 
+; dans un mois a partir de la variable mois
+; IN
+; A= mois
+; OUT
+; X= nombre jours du mois
+;
+        
+lgtMois: CPA     4,i
+         BREQ    court
+         CPA     6,i
+         BREQ    court
+         CPA     9,i
+         BREQ    court
+         CPA     11,i
+         BREQ    court
+         CPA     2,i
+         BREQ    fev
+         LDX     31,i
+         BR      sortie
+court:   LDX     30,i
+         BR      sortie
+         
+tcourt:  LDX     29,i
+         BR      sortie
+fev:     LDA     annee,d
+         SUBA    1900,i
+         LDX     4,i
+         CALL    divise
+         CPA     0
+         BREQ    tcourt
+         LDX     28,i  
+Sortie:  RET0  
+
+
+             
+;
+; Sous programme: mult
+; description: multiplie le nombre en A par le nombre en X. Il retourne le resultat
 ; dans le registre A.
 ;
 nombre:  .EQUATE 0           
-mult:    SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
-         CPA 0,i   
-         BREQ terminer     
+mult:    SUBSP   2,i         ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         CPA     0,i         
+         BREQ    terminer    
          STA     nombre,s    
-         LDA    0,i         
+         LDA     0,i         
 addition:ADDA    nombre,s    
          SUBX    1,i         
          CPX     0,i         
          BREQ    terminer    
          BR      addition    
 terminer:ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
-         RET0   
-
-   
-;divise: divise nombre donner en argument A par X
-;In A = dividende
+         RET0    
+            
+;Sous-programme : divise
+;descrition:  divise nombre donner en argument A par X
+;IN
+; A = dividende
 ; X = diviseur
-;OUT A = reste
+;OUT
+; A = reste
 ; X = quotient
 ;Variables locales
+
 diviser: .EQUATE 0           
 divise:  SUBSP   2,i         ;allouer espace variables locales ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
          STX     diviser,s   
@@ -733,12 +787,12 @@ soustr:  ADDX    1,i
          SUBX    1,i         
          ADDA    diviser,s   
          ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
-         RET0                
-;Sous-Proramme d'affichage de fin
+         RET0      
+          
+;Sous-Proramme : fin
+;description : affiche le message de fin et termine le programme
 ;
-;affiche le message de fin et termine le programme
-;
-fin:     STRO    final,d     
+fini:    STRO    final,d     
          STOP                
 bienvenu:.ASCII  "Bienvenue a ce programme d'affichage d'un calendrier.\x00"
 manuel:  .ASCII  "\n\nCe programme affichera un calendrier pour l'annee et le mois"
@@ -753,16 +807,17 @@ entinval:.ASCII  "\n\nEntree invalide\n\x00"
 compte:  .BLOCK  2           ;#2d
 annee:   .BLOCK  2           ;#2d
 mois:    .BLOCK  2           ;#2d
-jours:   .BLOCK 2
-aaxx:     .BLOCK 2 
-jourun: .BLOCK 2 
-jeuprem: .BLOCK 2
-jourspai: .BLOCK 3 
-datedec: .BLOCK  7 
-date:    .BLOCK  7 
+jours:   .BLOCK  2           
+aaxx:    .BLOCK  2           
+jourun:  .BLOCK  2           
+jeuprem: .BLOCK  2           
+jourspai:.BLOCK  2           
+datedec: .BLOCK  7           
+date:    .BLOCK  7           
 origine: .WORD   9           ; position dans la chaine d'entrée
 destin:  .WORD   5           ; position dans la chaine de sortie
 TEXTE:   .ASCII  "JANVIER|FEVRIER|MARS|AVRIL|MAI|JUIN|JUILLET|AOUT|SEPTEMBRE|OCTOBRE|NOVEMBRE|DECEMBRE|D  L  M  M  J  V  S\n|"
-SORTIE:  .BLOCK  50   
+jMaFF:   .ASCII  "1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+SORTIE:  .BLOCK  200          
          .BYTE   0           
-         .END                      
+         .END                  
