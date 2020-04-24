@@ -238,14 +238,10 @@ fin:     RET0
 ; Puis selon le mois il cherche dans un texte pour afficher le bon
 ; en characteres.
 ;
-STRBUILD:LDX     0,i         
-         LDBYTEA "\n",i      
-         STBYTEA SORTIE,x    
-         ADDX    1,i         
-         LDA     " ",i       
+STRBUILD:LDA     " ",i       
 espace:  STA     SORTIE,x    
          ADDX    2,i         
-         CPX     50,i        
+         CPX     200,i        
          BRLT    espace      
          LDA     mois,d      
          CPA     1,i         
@@ -287,7 +283,8 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          ADDA    6,i         ; longueur de 7 caractères
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
-         CALL    RECOPIE     
+         CALL    RECOPIE    
+STRO SORTIE,d 
          LDA     date,i      ; chaine d'origine
          STA     -2,s        
          LDA     0,i         ; premier caractère
@@ -299,7 +296,8 @@ JANVIER: LDA     TEXTE,i     ; chaine d'origine
          ADDA    3,i         ; longueur de 7 caractères
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
-         CALL    RECOPIE     
+         CALL    RECOPIE 
+STRO SORTIE,d    
          BR      AFFICHE     
 FEVRIER: LDA     TEXTE,i     ; chaine d'origine
          STA     -2,s        
@@ -575,7 +573,8 @@ DECEMBRE:LDA     TEXTE,i     ; chaine d'origine
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     
-AFFICHE: LDA     "\n\n",i    
+AFFICHE: STRO SORTIE,d
+         LDA     "\n\n",i    
          LDX     24,i        
          STA     SORTIE,x    
          LDA     TEXTE,i     ; chaine d'origine
@@ -609,7 +608,7 @@ affJours:SUBSP   6,i         ;WARNING: Number of bytes allocated (6) not equal t
          CALL    lgtmois     
          LDA     0,i         
          STX     jmois,s     
-         LDA     24,i        
+         LDA     60,i        
          STA     compte,d    
          LDA     0,i         
          STA     jsem,s      
@@ -787,7 +786,6 @@ date:    .BLOCK  7
 origine: .WORD   9           ; position dans la chaine d'entrée
 destin:  .WORD   5           ; position dans la chaine de sortie
 TEXTE:   .ASCII  "JANVIER|FEVRIER|MARS|AVRIL|MAI|JUIN|JUILLET|AOUT|SEPTEMBRE|OCTOBRE|NOVEMBRE|DECEMBRE|D L M M J V S\n|"
-jMaFF:   .ASCII  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
 SORTIE:  .BLOCK  200         
          .BYTE   0           
          .END                  
