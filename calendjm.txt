@@ -38,8 +38,8 @@ question:STRO    demande,d
 ;
 ; Reinitialise les valeurs de alphab et autres
 ; variables a 0
-reinit:  LDA     0,i         
-         LDX     0,i         
+reinit:  LDX     0,i         
+         LDA     0,i                 
          STA     destin,d
          STA     ind,d    
          STA     annee,d     
@@ -257,7 +257,7 @@ STRBUILD:LDX     0,i
          LDA     "  ",i      
 espace:  STA     SORTIE,x    
          ADDX    2,i         
-         CPX     100,i       
+         CPX     500,i       
          BRLT    espace      
          LDA     mois,d      
          CPA     1,i         
@@ -655,5 +655,5 @@ destin:  .BLOCK  2           ; position dans la chaine de sortie
 TEXTE:   .ASCII  "JANVIER FEVRIER MARS AVRIL MAI JUIN JUILLET AOUT SEPTEMBRE OCTOBRE NOVEMBRE DECEMBRE D  L  M  M  J  V  S\n"
 SAUT:    .ASCII  "\n "
 CHIFFRES:.ASCII  " 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
-SORTIE:  .BLOCK  500                 
+SORTIE:  .BLOCK  600                
          .END                  
