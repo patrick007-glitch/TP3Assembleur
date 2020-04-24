@@ -14,8 +14,8 @@
 ;Programme principal qui appel les sous programmes nécessaires
 ;
          CALL    bonjour     
-debut:   CALL    question 
-         Call reinit   
+debut:   CALL    question    
+         CALL    reinit      
          CALL    saisi       
          CPA     -1,i        
          BREQ    debut       
@@ -35,46 +35,20 @@ bonjour: STRO    bienvenu,d
 ;
 question:STRO    demande,d   
          RET0                
- 
-; Sous-Programme: reinit 
-
-
-; description: Reinitialise les valeurs de alphab , compte, annee et mois 
-
-
-; variables a 0 
-
-
-reinit: LDA 0,i 
-
-
-LDX 0,i 
-
-
-STA compte,d 
-
-
-STA annee,d 
-
-
-STA mois,d 
-
-
-retalpha:STA date,x 
-
-
-ADDX 1,i 
-
-
-CPX 7,i 
-
-
-BREQ ret 
-
-
-BR retalpha 
-
-ret: RET0       
+; Sous-Programme: reinit
+; description: Reinitialise les valeurs de alphab , compte, annee et mois
+; variables a 0
+reinit:  LDA     0,i         
+         LDX     0,i         
+         STA     compte,d    
+         STA     annee,d     
+         STA     mois,d      
+retalpha:STA     date,x      
+         ADDX    1,i         
+         CPX     7,i         
+         BREQ    ret         
+         BR      retalpha    
+ret:     RET0                
 ;
 ; Sous programme qui saisi une chaine de caractere
 ; entrez par l'usager et valide que les characteres saisi sont des nombres.
@@ -181,7 +155,7 @@ premjour:LDA     0,i
 ;aaxx*365 => aaxx*(364+1) => aaxx*(1) => aaxx , car 364 est un multiple de 7
          LDA     annee,d     
          SUBA    1900,i      
-         STA     aaxx,d        
+         STA     aaxx,d      
          STA     compte,d    
 ;+ entier((aaxx-1) / 4)
          LDA     aaxx,d      
@@ -222,12 +196,13 @@ bissex:  SUBA    1,i         ; -2 pour l'année non bissextile ou -1 pour bissext
          LDX     7,i         
          CALL    divise      
          STA     jourun,d    ; indice du premier jour
-         DECO jourun,d
+         DECO    jourun,d    
          RET0                
 ;
 ; Sous programme qui trouve la date du premier jeudi du mois.
 ;
-premjeu: LDX     0,i         
+premjeu: LDX     1,i         
+         STX     compte,d    
          LDA     jourun,d    
 boucl:   CPA     4,i         
          BREQ    jeudi       
@@ -236,7 +211,7 @@ boucl:   CPA     4,i
          ADDA    1,i         
          ADDX    1,i         
          BR      boucl       
-jeudi:   STA     jeuprem,d   
+jeudi:   STX     jeuprem,d   
          ADDX    jours,d     
          STX     jours,d     
          RET0                
@@ -280,7 +255,7 @@ STRBUILD:LDX     0,i
          LDA     "  ",i      
 espace:  STA     SORTIE,x    
          ADDX    2,i         
-         CPX     300,i       
+         CPX     500,i       
          BRLT    espace      
          LDA     mois,d      
          CPA     1,i         
@@ -625,11 +600,11 @@ AFFICHE: LDA     "\n\n",i
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     
-         LDBYTEA "\n",i     
+         LDBYTEA "\n",i      
          LDX     52,i        
-         STBYTEA SORTIE,x  
+         STBYTEA SORTIE,x    
          CALL    affJours    
-         STRO    SORTIE,d   
+         STRO    SORTIE,d    
          RET0                
 ;
 ; affiche les journee du mois
@@ -641,7 +616,7 @@ affJours:SUBSP   6,i         ;WARNING: Number of bytes allocated (6) not equal t
          LDA     1,i         
          STA     jAff,s      
          LDA     mois,d      
-         CALL    lgtmois              
+         CALL    lgtmois     
          STX     jmois,s     
          LDA     59,i        
          STA     compte,d    
@@ -657,16 +632,16 @@ blanc:   LDA     jsem,s
          ADDA    1,i         
          STA     jsem,s      
          BR      blanc       
-uncharac:LDA     jAff,s 
-ADDA jAff,s
-SUBA 1,i
-STA ind,d
-LDA jAff,s
+uncharac:LDA     jAff,s      
+         ADDA    jAff,s      
+         SUBA    1,i         
+         STA     ind,d       
+         LDA     jAff,s      
          CPA     10,i        
          BRGT    deuxchar    
          LDA     CHIFFRES,i  ; chaine d'origine
          STA     -2,s        
-         LDA     ind,d      ; 10ième caractère
+         LDA     ind,d       ; 10ième caractère
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
@@ -682,18 +657,18 @@ LDA jAff,s
          BR      fait        
 deuxchar:LDA     CHIFFRES,i  ; chaine d'origine
          STA     -2,s        
-         LDA     ind,d   ; 10ième caractère        
+         LDA     ind,d       ; 10ième caractère
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
          LDA     compte,d    ; 12ième caractère
          STA     -8,s        
-         ADDA    1,i         ; longueur de 2 caractères
+         ADDA    0,i         ; longueur de 2 caractères
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     ; #retour
          LDX     compte,d    
-         ADDX    3,i         
+         ADDX    2,i         
          STX     compte,d    
 fait:    LDA     jAff,s      
          ADDA    1,i         
@@ -709,13 +684,46 @@ fait:    LDA     jAff,s
          BR      uncharac    
 ind0:    LDA     0,i         
          STA     jsem,s      
+         LDX     compte,d    
+         ADDX    2,i         
          LDBYTEA "\n",i      
-         STBYTEA SORTIE,x        
+         STBYTEA SORTIE,x    
          ADDX    7,i         
          STX     compte,d    
          BR      uncharac    
-fini:    ADDSP   6,i         
-         RET0                ;WARNING: Number of bytes deallocated (6) not equal to number of bytes listed in trace tag (0).
+fini:    LDA     "\n\n",i    
+         STA     SORTIE,x    
+         ADDX    7,i         
+         STX     compte,d    
+         LDA     TEXTPAIE,i  ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i         ; 10ième caractère
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     compte,d    ; 12ième caractère
+         STA     -8,s        
+         ADDA    13,i        ; longueur de 2 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL    RECOPIE     ; #retour
+         ADDX    14,i        
+         DECO    jeuprem,d   
+         LDA     jeuprem,d   
+         ADDA    48,i        
+         STA     SORTIE,x    
+         SUBA    48,i        
+         ADDX    2,i         
+         ADDA    14,i        
+         STA     SORTIE,x    
+         CPA     31,i        
+         BREQ    finit       
+         ADDX    2,i         
+         ADDA    14,i        
+         STA     SORTIE,x    
+         BR      finit       
+finit:   ADDSP   6,i         ;WARNING: Number of bytes deallocated (6) not equal to number of bytes listed in trace tag (0).
+         RET0                
 ;
 ;        sous-programme RECOPIE
 ;
@@ -761,8 +769,8 @@ boucle:  LDX     positioO,s  ; position de départ
 ; dans le registre A.
 ;
 nombre:  .EQUATE 0           
-mult:    SUBSP   2,i         
-         CPA     0,i         ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+mult:    SUBSP   2,i         ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         CPA     0,i         
          BREQ    terminer    
          STA     nombre,s    
          LDA     0,i         
@@ -771,8 +779,8 @@ addition:ADDA    nombre,s
          CPX     0,i         
          BREQ    terminer    
          BR      addition    
-terminer:ADDSP   2,i         
-         RET0                ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+terminer:ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0                
 ;
 ; Sous-programme: lgtMois
 ; description: programme qui determine le nombre de jours
@@ -813,16 +821,16 @@ reto:    RET0
 ; X = quotient
 ;Variables locales
 diviser: .EQUATE 0           
-divise:  SUBSP   2,i         ;allouer espace variables locales 
-         STX     diviser,s   ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+divise:  SUBSP   2,i         ;allouer espace variables locales ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         STX     diviser,s   
          LDX     0,i         
 soustr:  ADDX    1,i         
          SUBA    diviser,s   
          BRGE    soustr      
          SUBX    1,i         
          ADDA    diviser,s   
-         ADDSP   2,i         
-         RET0                ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         ADDSP   2,i         ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0                
 ;Sous-Proramme d'affichage de fin
 ;
 ;affiche le message de fin et termine le programme
@@ -842,15 +850,16 @@ entinval:.ASCII  "\n\nEntree invalide\n\x00"
 compte:  .BLOCK  2           ;#2d
 annee:   .BLOCK  2           ;#2d
 mois:    .BLOCK  2           ;#2d
-ind: .BLOCK 2
+ind:     .BLOCK  2           
 jours:   .BLOCK  2           
 aaxx:    .BLOCK  2           
 jourun:  .BLOCK  2           
 jeuprem: .BLOCK  2           
 jourspai:.BLOCK  3           
 datedec: .BLOCK  8           
-date:    .BLOCK  8          
+date:    .BLOCK  8           
 TEXTE:   .ASCII  "JANVIER FEVRIER MARS AVRIL MAI JUIN JUILLET AOUT SEPTEMBRE OCTOBRE NOVEMBRE DECEMBRE D  L  M  M  J  V  S\n \x00"
 CHIFFRES:.ASCII  " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31   \x00"
-SORTIE:  .BLOCK  300          
+TEXTPAIE:.ASCII  "Jours de paie: \x00"
+SORTIE:  .BLOCK  500         
          .END                  
