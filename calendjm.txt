@@ -40,7 +40,8 @@ question:STRO    demande,d
 ; variables a 0
 reinit:  LDA     0,i         
          LDX     0,i         
-         STA     compte,d    
+         STA     destin,d
+         STA     ind,d    
          STA     annee,d     
          STA     mois,d      
 retalpha:STBYTEA date,x      
@@ -218,30 +219,32 @@ jeudi:   STA     jeuprem,d
 ; Sous programme qui trouve si les jeudis du mois qui sont un jour de paie. Il range les
 ; dates dans un tableau nommés jourspai.
 ;
-jourpaie:LDA     jours,d     
+long:    .EQUATE 0
+jourpaie:SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
+         CALL    lgtmois
+         STA     long,s
+         LDA     jours,d     
          LDX     14,i        
          CALL    divise      
          CPA     4,i         
-         BREQ    oui         
-         LDA     jeuprem,d   
-oui:     LDX     0,i         
-         LDA     jeuprem,d   
+         BREQ    oui  
+         BR      non       
+oui:     LDA     jeuprem,d   
+         LDX     0,i          
          STA     jourspai,x  
-         ADDX    1,i         
-         ADDA    14,i        
-         CPA     31,i        
-         BRGE    term        
-         CPA     28,i        
-         BRGT    verimois    
-         BR      oui         
-verimois:LDA     mois,d      
-         CPA     2,i         
-         BREQ    fevrier     
-         BR      oui         
-fevrier: LDA     ' ',i       
-         STA     jourspai,x  
-         BR      term        
-term:    RET0                
+         BR      suiv                             
+non:     LDA     jeuprem,d  
+         ADDA    7,i
+         LDX     0,i  
+         STA     jourspai,x
+suiv:    ADDA    14,i
+         CPA     long,s
+         BRGT    term
+         ADDX    1,i 
+         STA     jourspai,x 
+         BR      suiv       
+term:    ADDSP   2,i ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
+         RET0                
 ;
 ;       Sous programme qui initialise un texte avec des espaces vides
 ;       Puis selon le mois il cherche dans un texte pour afficher le bon
@@ -393,7 +396,24 @@ AFFICHE: CALL    sautL
          STA     destin,d    ;ajustement pour prochain ajout a sortie
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE         
-         CALL    affJours          
+         CALL    affJours 
+         CALL    sautL 
+         LDA     paye,i     ; chaine d'origine
+         STA     -2,s        
+         LDA     0,i        ; position chaine d'origine
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA     170,i    ; position chaineDeDestination        
+         STA     -8,s        
+         ADDA    17,i        ; longueur de 17 caractères de Jours de paye
+         STA     -10,s       
+         ADDA    1,i
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL    RECOPIE      
+         LDA     destin,d    ; position chaineDeDestination 
+         ADDA    17,i        ; longueur de 17 caractères de Jours de pay
+         STA     destin,d    
          STRO    SORTIE,d    
          RET0   
 
@@ -612,6 +632,7 @@ manuel:  .ASCII  "\n\nCe programme affichera un calendrier pour l'annee et le mo
          .ASCII  "\nAucun espace ne peut apparaître avant, à l'intérieur ou après la date."
          .ASCII  "\nPour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie\x00."
 demande: .ASCII  "\n\nEntrez la date desiree: \x00"
+paye:    .ASCII  "\n\nJours de paye : \x00" 
 final:   .ASCII  "\n\nFin normal du programme\x00"
 entinval:.ASCII  "\n\nEntree invalide\n\x00"
 compte:  .BLOCK  2           ;#2d
@@ -634,6 +655,5 @@ destin:  .BLOCK  2           ; position dans la chaine de sortie
 TEXTE:   .ASCII  "JANVIER FEVRIER MARS AVRIL MAI JUIN JUILLET AOUT SEPTEMBRE OCTOBRE NOVEMBRE DECEMBRE D  L  M  M  J  V  S\n"
 SAUT:    .ASCII  "\n "
 CHIFFRES:.ASCII  " 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
-SORTIE:  .BLOCK  250         
-         .BYTE   0           
+SORTIE:  .BLOCK  500                 
          .END                  
