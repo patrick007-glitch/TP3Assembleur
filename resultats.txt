@@ -1,0 +1,77 @@
+Bienvenue a ce programme d'affichage d'un calendrier.
+
+Ce programme affichera un calendrier pour l'annee et le mois
+desire. Il faut entrez le mois desire sous la forme AAAAMM sans quoi
+le programme vous dira que c'est une entree invalide. De plus, seules
+les années comprises inclusivement entre 1901 et 2050 sont valides.
+Aucun espace ne peut apparaître avant, à l'intérieur ou après la date.
+Pour terminer le programme il faut appuyer uniquement sur ENTREE lors de la saisie
+
+Entrez la date desiree: 202004
+
+         AVRIL 2020
+      D  L  M  M  J  V  S
+               1  2  3  4 
+      5  6  7  8  9 10 11 
+     12 13 14 15 16 17 18 
+     19 20 21 22 23 24 25 
+     26 27 28 29 30 
+
+
+Jours de paie: 2,16,30                                                                                                                                                                                                                                                                                                             
+
+Entrez la date desiree: 201606
+
+         JUIN 2016
+      D  L  M  M  J  V  S
+               1  2  3  4 
+      5  6  7  8  9 10 11 
+     12 13 14 15 16 17 18 
+     19 20 21 22 23 24 25 
+     26 27 28 29 30 
+
+
+Jours de paie: 2,16,30                                                                                                                                                                                                                                                                                                              
+
+Entrez la date desiree: 198111
+
+         NOVEMBRE 1981
+      D  L  M  M  J  V  S
+      1  2  3  4  5  6  7 
+      8  9 10 11 12 13 14 
+     15 16 17 18 19 20 21 
+     22 23 24 25 26 27 28 
+     29 30 
+
+
+Jours de paie: 5,19                                                                                                                                                                                                                                                                                                                      
+
+Entrez la date desiree: 199802
+
+         FEVRIER 1998
+      D  L  M  M  J  V  S
+      1  2  3  4  5  6  7 
+      8  9 10 11 12 13 14 
+     15 16 17 18 19 20 21 
+     22 23 24 25 26 27 28 
+
+
+Jours de paie: 5,19                                                                                                                                                                                                                                                                                                                                   
+
+Entrez la date desiree: 204802
+
+         FEVRIER 2048
+      D  L  M  M  J  V  S
+                        1 
+      2  3  4  5  6  7  8 
+      9 10 11 12 13 14 15 
+     16 17 18 19 20 21 22 
+     23 24 25 26 27 28 29 
+
+
+Jours de paie: 13,27                                                                                                                                                                                                                                                                                                       
+
+Entrez la date desiree: 
+
+
+Fin normal du programme
