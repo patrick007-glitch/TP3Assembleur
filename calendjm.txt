@@ -227,7 +227,6 @@ jeudi:   STX     jeuprem,d
 ;
 long:    .EQUATE 0
 jourpaie:SUBSP   2,i ;WARNING: Number of bytes allocated (2) not equal to number of bytes listed in trace tag (0).
-         DECO jeuprem,d
          CALL    lgtmois
          STA     long,s
          LDA     jours,d     
@@ -241,7 +240,8 @@ oui:     LDA     jeuprem,d
          STA     -2,s        
          LDA     jeuprem,d       ; position dans la chaine d'origine 
          ADDA jeuprem,d
-         SUBA 1,i    
+         ADDA jeuprem,d
+         SUBA 2,i  
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
@@ -258,12 +258,14 @@ oui:     LDA     jeuprem,d
 non:     LDA     jeuprem,d  
          ADDA    7,i 
          STA jeuprem,d
+         CPA 9,i 
+         BRGE plusespa 
          LDA     CHIFFRES,i  ; chaine d'origine
          STA     -2,s        
          LDA     jeuprem,d       ; position dans la chaine d'origine 
          ADDA jeuprem,d
-         SUBA 1,i  
-         ADDA 12,i   
+         ADDA jeuprem,d
+         SUBA 2,i  
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
@@ -273,7 +275,23 @@ non:     LDA     jeuprem,d
          STA     -10,s       
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     ; #retour
-         LDX     destin,d     
+         BR nexto
+plusespa: LDA     CHIFFRES,i  ; chaine d'origine
+         STA     -2,s        
+         LDA     jeuprem,d       ; position dans la chaine d'origine 
+         ADDA    jeuprem,d
+         ADDA    jeuprem,d
+         SUBA    3,i
+         STA     -4,s        
+         LDA     SORTIE,i    ; chaine de destination
+         STA     -6,s        
+         LDA      destin,d   ; 12ième caractère
+         STA     -8,s        
+         ADDA    2,i         ; longueur de 2 caractères
+         STA     -10,s       
+         SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
+         CALL    RECOPIE     ; #retour
+nexto:   LDX     destin,d     
          ADDX    3,i         
          STX     destin,d 
 suiv:    LDA jeuprem,d
@@ -290,8 +308,8 @@ suiv:    LDA jeuprem,d
          STA     -2,s        
          LDA     jeuprem,d       ; position dans la chaine d'origine 
          ADDA    jeuprem,d
-         SUBA    1,i     
-ADDA 25,i
+         ADDA    jeuprem,d
+         SUBA    3,i
          STA     -4,s        
          LDA     SORTIE,i    ; chaine de destination
          STA     -6,s        
