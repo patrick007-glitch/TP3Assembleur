@@ -252,7 +252,7 @@ oui:     LDA     jeuprem,d
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     ; #retour
          LDX     destin,d     
-         ADDX    2,i         
+         ADDX    1,i         
          STX     destin,d  
          BR      suiv                             
 non:     LDA     jeuprem,d  
@@ -292,7 +292,7 @@ plusespa: LDA     CHIFFRES,i  ; chaine d'origine
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     ; #retour
 nexto:   LDX     destin,d     
-         ADDX    3,i         
+         ADDX    2,i         
          STX     destin,d 
 suiv:    LDA jeuprem,d
          ADDA    14,i
@@ -302,7 +302,7 @@ suiv:    LDA jeuprem,d
          LDBYTEA ',',i 
          STBYTEA SORTIE,x
          LDX     destin,d     
-         ADDX    2,i         
+         ADDX    1,i         
          STX     destin,d 
          LDA     CHIFFRES,i  ; chaine d'origine
          STA     -2,s        
@@ -320,7 +320,7 @@ suiv:    LDA jeuprem,d
          SUBSP   10,i        ; #chaineO #positioO #chaineD #positioD #limite
          CALL    RECOPIE     ; #retour
          LDX     destin,d     
-         ADDX    3,i         
+         ADDX    2,i         
          STX     destin,d 
          BR      suiv       
 term:    ADDSP   2,i ;WARNING: Number of bytes deallocated (2) not equal to number of bytes listed in trace tag (0).
